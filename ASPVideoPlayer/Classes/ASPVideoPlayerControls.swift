@@ -218,6 +218,13 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
         }
     }
 
+    @objc public var defaultFont: UIFont? = UIFont(name: "Courier-Bold", size: 12.0) {
+        didSet {
+            currentTimeLabel.font = defaultFont
+            lengthLabel.font = defaultFont
+        }
+    }
+
     // MARK: - Superclass methods -
 
     public override init(frame: CGRect) {
@@ -408,11 +415,11 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
 
         currentTimeLabel.textColor = tintColor
         currentTimeLabel.textAlignment = .center
-        currentTimeLabel.font = UIFont(name: "Courier-Bold", size: 12.0)
+        currentTimeLabel.font = defaultFont
 
         lengthLabel.textColor = tintColor
         lengthLabel.textAlignment = .center
-        lengthLabel.font = UIFont(name: "Courier-Bold", size: 12.0)
+        lengthLabel.font = defaultFont
 
         resizeButton.backgroundColor = .clear
         resizeButton.tintColor = tintColor
