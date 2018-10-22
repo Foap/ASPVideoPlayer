@@ -180,7 +180,7 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
             progressLoader.tintColor = tintColor
             progressSlider.tintColor = tintColor
 
-            lengthLabel.textColor = tintColor
+            timeLeftLabel.textColor = tintColor
             currentTimeLabel.textColor = tintColor
 
             resizeButton.tintColor = tintColor
@@ -207,7 +207,7 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
     private let resizeButton = ResizeButton()
 
     private var currentTimeLabel = UILabel()
-    private var lengthLabel = UILabel()
+    private var timeLeftLabel = UILabel()
 
     private var resizeButtonWidthConstraint: NSLayoutConstraint!
     private var resizeButtonRightConstraint: NSLayoutConstraint!
@@ -290,7 +290,7 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
             strongSelf.progressLoader.startAnimating()
             strongSelf.progressSlider.value = 0.0
 
-            strongSelf.lengthLabel.text = strongSelf.timeFormatted(totalSeconds: 0)
+            strongSelf.timeLeftLabel.text = "-" + strongSelf.timeFormatted(totalSeconds: 0)
             strongSelf.currentTimeLabel.text = strongSelf.timeFormatted(totalSeconds: 0)
 
             strongSelf.progressLoader.startAnimating()
@@ -310,7 +310,9 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
             }
 
             let currentTime = strongVideoPlayerView.currentTime
+            let timeLeft = strongVideoPlayerView.videoLength - currentTime
             strongSelf.currentTimeLabel.text = strongSelf.timeFormatted(totalSeconds: UInt(currentTime))
+            strongSelf.timeLeftLabel.text = "-" + strongSelf.timeFormatted(totalSeconds: UInt(timeLeft))
         }
 
         videoPlayerView.pausedVideo = { [weak self] in
@@ -362,18 +364,19 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
 
         progressSlider.isUserInteractionEnabled = true
 
-        lengthLabel.text = timeFormatted(totalSeconds: UInt(videoPlayerView.videoLength))
+        timeLeftLabel.text = "-" + timeFormatted(totalSeconds: UInt(videoPlayerView.videoLength))
         currentTimeLabel.text = timeFormatted(totalSeconds: UInt(videoPlayerView.currentTime))
 
         progressLoader.stopAnimating()
     }
 
     private func timeFormatted(totalSeconds: UInt) -> String {
-        let seconds = totalSeconds % 60
-        let minutes = (totalSeconds / 60) % 60
-        let hours = totalSeconds / 3600
-
-        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute, .second]
+        formatter.unitsStyle = .positional
+        formatter.zeroFormattingBehavior = .pad
+        
+        return formatter.string(from: TimeInterval(totalSeconds)) ?? ""
     }
 
     private func commonInit() {
@@ -383,7 +386,7 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
         previousButton.translatesAutoresizingMaskIntoConstraints = false
         progressLoader.translatesAutoresizingMaskIntoConstraints = false
         currentTimeLabel.translatesAutoresizingMaskIntoConstraints = false
-        lengthLabel.translatesAutoresizingMaskIntoConstraints = false
+        timeLeftLabel.translatesAutoresizingMaskIntoConstraints = false
         resizeButton.translatesAutoresizingMaskIntoConstraints = false
 
         playPauseButton.accessibilityIdentifier = "PlayPauseButton"
@@ -392,7 +395,7 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
         previousButton.accessibilityIdentifier = "PreviousButton"
         progressLoader.accessibilityIdentifier = "ProgressLoader"
         currentTimeLabel.accessibilityIdentifier = "CurrentTimeLabel"
-        lengthLabel.accessibilityIdentifier = "TotalTimeLabel"
+        timeLeftLabel.accessibilityIdentifier = "TotalTimeLabel"
         resizeButton.accessibilityIdentifier = "ResizeButton"
 
         previousButton.isHidden = true
@@ -410,9 +413,9 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
         currentTimeLabel.textAlignment = .center
         currentTimeLabel.font = UIFont(name: "Courier-Bold", size: 12.0)
 
-        lengthLabel.textColor = tintColor
-        lengthLabel.textAlignment = .center
-        lengthLabel.font = UIFont(name: "Courier-Bold", size: 12.0)
+        timeLeftLabel.textColor = tintColor
+        timeLeftLabel.textAlignment = .center
+        timeLeftLabel.font = UIFont(name: "Courier-Bold", size: 12.0)
 
         resizeButton.backgroundColor = .clear
         resizeButton.tintColor = tintColor
@@ -430,7 +433,7 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
         addSubview(nextButton)
         addSubview(previousButton)
         addSubview(currentTimeLabel)
-        addSubview(lengthLabel)
+        addSubview(timeLeftLabel)
         addSubview(resizeButton)
 
         setupLayout()
@@ -443,7 +446,7 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
                                                "previousButton":previousButton,
                                                "progressLoader":progressLoader,
                                                "currentTimeLabel":currentTimeLabel,
-                                               "lengthLabel":lengthLabel,
+                                               "timeLeftLabel":timeLeftLabel,
                                                "resizeButton":resizeButton]
 
         var constraintsArray = [NSLayoutConstraint]()
@@ -458,7 +461,7 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
         constraintsArray.append(NSLayoutConstraint(item: progressLoader, attribute: .centerY, relatedBy: .equal, toItem: self, attribute: .centerY, multiplier: 1.0, constant: 0.0))
         constraintsArray.append(NSLayoutConstraint(item: progressLoader, attribute: .width, relatedBy: .equal, toItem: progressLoader, attribute: .height, multiplier: 1.0, constant: 0.0))
 
-        constraintsArray.append(NSLayoutConstraint(item: resizeButton, attribute: .centerY, relatedBy: .equal, toItem: lengthLabel, attribute: .centerY, multiplier: 1.0, constant: -2.0))
+        constraintsArray.append(NSLayoutConstraint(item: resizeButton, attribute: .centerY, relatedBy: .equal, toItem: timeLeftLabel, attribute: .centerY, multiplier: 1.0, constant: -2.0))
 
         resizeButtonWidthConstraint = NSLayoutConstraint(item: resizeButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 26.0)
         resizeButtonRightConstraint = NSLayoutConstraint(item: resizeButton, attribute: .right, relatedBy: .equal, toItem: self, attribute: .right, multiplier: 1.0, constant: -8.0)
@@ -471,13 +474,13 @@ open class ASPBasicControls: UIView, VideoPlayerControls, VideoPlayerSeekControl
         constraintsArray.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: "V:[nextButton(==66)]", options: [], metrics: nil, views: viewsDictionary))
         constraintsArray.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: "V:[previousButton(==nextButton)]", options: [], metrics: nil, views: viewsDictionary))
         
-        constraintsArray.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: "H:|-[currentTimeLabel(==lengthLabel)]-10-[progressSlider]-10-[lengthLabel]-[resizeButton]", options: [], metrics: nil, views: viewsDictionary))
-        constraintsArray.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: "H:[lengthLabel]-(8@750)-|", options: [], metrics: nil, views: viewsDictionary))
+        constraintsArray.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: "H:|-[currentTimeLabel(==timeLeftLabel)]-10-[progressSlider]-10-[timeLeftLabel]-[resizeButton]", options: [], metrics: nil, views: viewsDictionary))
+        constraintsArray.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: "H:[timeLeftLabel]-(8@750)-|", options: [], metrics: nil, views: viewsDictionary))
         
         constraintsArray.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: "V:[resizeButton(==24)]", options: [], metrics: nil, views: viewsDictionary))
         constraintsArray.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: "V:[progressSlider(==40)]-6-|", options: [], metrics: nil, views: viewsDictionary))
         constraintsArray.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: "V:[currentTimeLabel(==40)]-3-|", options: [], metrics: nil, views: viewsDictionary))
-        constraintsArray.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: "V:[lengthLabel(==40)]-3-|", options: [], metrics: nil, views: viewsDictionary))
+        constraintsArray.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: "V:[timeLeftLabel(==40)]-3-|", options: [], metrics: nil, views: viewsDictionary))
 
         addConstraints(constraintsArray)
     }
