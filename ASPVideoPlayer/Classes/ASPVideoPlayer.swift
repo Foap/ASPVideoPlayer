@@ -380,7 +380,7 @@ import AVFoundation
         addSubview(videoPlayerView)
         addSubview(videoPlayerControls)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(ASPVideoPlayer.applicationDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ASPVideoPlayer.applicationDidEnterBackground), name: Notification.Name.UIApplicationDidEnterBackground, object: nil)
 
         setupLayout()
     }
