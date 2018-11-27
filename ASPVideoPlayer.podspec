@@ -29,7 +29,7 @@ A simple UIView subclass that can play a video and allows animations to be appli
   s.social_media_url = 'https://twitter.com/AndyPitis'
 
   s.ios.deployment_target = '8.0'
-
+  s.swift_version = '4.2'
   s.source_files = 'ASPVideoPlayer/Classes/**/*'
   
   # s.resource_bundles = {
